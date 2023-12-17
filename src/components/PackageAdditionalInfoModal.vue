@@ -1,7 +1,7 @@
 <template>
   <q-dialog
     @update:model-value="dialogsStore.selectedPackageInfo = {}"
-    :model-value="showDialog"
+    :model-value="dialogsStore.showDialog"
   >
     <q-card class="packages-card q-pa-sm items-center flex column">
       <q-toolbar>
@@ -33,17 +33,13 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onUpdated, ref, watch } from 'vue';
+import { onUpdated, ref, watch } from 'vue';
 import { useDialogsStore } from 'stores/dialogs';
 import { api } from 'boot/axios';
+import { JsdelivrPackageStatsModel, JsdelivrPackageModel } from 'src/models';
+import { unknownValue } from 'src/constants';
 
 const dialogsStore = useDialogsStore();
-
-const showDialog = computed(
-  () => !!Object.keys(dialogsStore.selectedPackageInfo).length
-);
-
-const unknownValue = 'unknown';
 
 const JSDelivrDataDefault: Record<string, string | number> = {
   latest: unknownValue,
@@ -64,17 +60,14 @@ const fetchJSDelivrData = async () => {
     .get<
       string,
       {
-        data: {
-          tags: {
-            latest?: number;
-            beta?: number;
-          };
-        };
+        data: JsdelivrPackageModel;
       }
     >(`https://data.jsdelivr.com/v1/packages/npm/${name}`)
     .then((res) => {
-      JSDelivrData.value.latest = res.data.tags.latest ?? unknownValue;
-      JSDelivrData.value.beta = res.data.tags.beta ?? unknownValue;
+      const { value } = JSDelivrData;
+      const { data } = res;
+      value.latest = data.tags.latest ?? unknownValue;
+      value.beta = data.tags.beta ?? unknownValue;
     })
     .catch(console.error);
 
@@ -82,39 +75,33 @@ const fetchJSDelivrData = async () => {
     .get<
       string,
       {
-        data: {
-          hits: {
-            total?: number;
-            rank?: number;
-          };
-          bandwidth: {
-            total?: number;
-            rank?: number;
-          };
-        };
+        data: JsdelivrPackageStatsModel;
       }
     >(`https://data.jsdelivr.com/v1/stats/packages/npm/${name}?period=year`)
     .then((res) => {
-      JSDelivrData.value.hitsTotal = res.data.hits.total ?? unknownValue;
-      JSDelivrData.value.hitsRank = res.data.hits.rank ?? unknownValue;
-      JSDelivrData.value.bandwidthTotal =
-        res.data.bandwidth.total ?? unknownValue;
-      JSDelivrData.value.bandwidthRank =
-        res.data.bandwidth.rank ?? unknownValue;
+      const { value } = JSDelivrData;
+      const { data } = res;
+      value.hitsTotal = data.hits.total ?? unknownValue;
+      value.hitsRank = data.hits.rank ?? unknownValue;
+      value.bandwidthTotal = data.bandwidth.total ?? unknownValue;
+      value.bandwidthRank = data.bandwidth.rank ?? unknownValue;
     })
     .catch(console.error);
 
   isLoading.value = false;
 };
 
-watch(showDialog, (newValue) => {
-  if (!newValue) {
-    dialogsStore.selectedPackageInfo = {};
+watch(
+  () => dialogsStore.showDialog,
+  (newValue) => {
+    if (!newValue) {
+      dialogsStore.selectedPackageInfo = {};
+    }
   }
-});
+);
 
 onUpdated(() => {
-  if (showDialog.value) {
+  if (dialogsStore.showDialog) {
     fetchJSDelivrData();
   }
 });

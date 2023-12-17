@@ -1,5 +1,5 @@
 <template>
-  <q-page class="q-pa-md items-center flex column">
+  <q-page class="q-pa-lg items-center flex column">
     <PackagesSearchInput />
     <PackagesTable />
     <PackageAdditionalInfoModal />

@@ -31,9 +31,8 @@
       <q-pagination
         v-model="pagination.page"
         color="grey-8"
-        size="sm"
         :max="rows.length / pagination.rowsPerPage"
-        :max-pages="7"
+        :max-pages="9"
       />
     </div>
   </div>

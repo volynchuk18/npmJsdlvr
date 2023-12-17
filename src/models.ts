@@ -36,3 +36,21 @@ export interface RegistryPackages {
   total: number;
   time: string;
 }
+
+export interface JsdelivrPackageModel {
+  tags: {
+    latest?: number;
+    beta?: number;
+  };
+}
+
+export interface JsdelivrPackageStatsModel {
+  hits: {
+    total?: number;
+    rank?: number;
+  };
+  bandwidth: {
+    total?: number;
+    rank?: number;
+  };
+}

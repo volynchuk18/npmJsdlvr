@@ -1,4 +1,5 @@
 import { defineStore } from 'pinia';
+import { computed } from 'vue';
 
 interface RootState {
   selectedPackageInfo: {
@@ -10,4 +11,7 @@ export const useDialogsStore = defineStore('dialogs', {
     ({
       selectedPackageInfo: {},
     } as RootState),
+  getters: {
+    showDialog: (state) => !!Object.keys(state.selectedPackageInfo).length,
+  },
 });
