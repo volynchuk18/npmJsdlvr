@@ -8,6 +8,6 @@
 
 <script setup lang="ts">
 import PackagesSearchInput from 'components/PackagesSearchInput.vue';
-import PackagesTable from "components/PackagesTable.vue";
-import PackageAdditionalInfoModal from "components/PackageAdditionalInfoModal.vue";
+import PackagesTable from 'components/PackagesTable.vue';
+import PackageAdditionalInfoModal from 'components/PackageAdditionalInfoModal.vue';
 </script>
