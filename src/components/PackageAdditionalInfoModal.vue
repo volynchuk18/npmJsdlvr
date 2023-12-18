@@ -56,39 +56,45 @@ let isLoading = ref(false);
 const fetchJSDelivrData = async () => {
   isLoading.value = true;
   const { name } = dialogsStore.selectedPackageInfo;
-  await api
+  const packages = api
     .get<
       string,
       {
         data: JsdelivrPackageModel;
       }
     >(`https://data.jsdelivr.com/v1/packages/npm/${name}`)
-    .then((res) => {
-      const { value } = JSDelivrData;
-      const { data } = res;
-      value.latest = data.tags.latest ?? unknownValue;
-      value.beta = data.tags.beta ?? unknownValue;
-    })
+    .then((res) => res)
     .catch(console.error);
 
-  await api
+  const stats = api
     .get<
       string,
       {
         data: JsdelivrPackageStatsModel;
       }
     >(`https://data.jsdelivr.com/v1/stats/packages/npm/${name}?period=year`)
-    .then((res) => {
-      const { value } = JSDelivrData;
-      const { data } = res;
-      value.hitsTotal = data.hits.total ?? unknownValue;
-      value.hitsRank = data.hits.rank ?? unknownValue;
-      value.bandwidthTotal = data.bandwidth.total ?? unknownValue;
-      value.bandwidthRank = data.bandwidth.rank ?? unknownValue;
-    })
+    .then((res) => res)
     .catch(console.error);
 
-  isLoading.value = false;
+  await Promise.all([packages, stats])
+    .then(([packages, stats]) => {
+      if (packages) {
+        const { value } = JSDelivrData;
+        const { data } = packages;
+        value.latest = data.tags.latest ?? unknownValue;
+        value.beta = data.tags.beta ?? unknownValue;
+      }
+
+      if (stats) {
+        const { value } = JSDelivrData;
+        const { data } = stats;
+        value.hitsTotal = data.hits.total ?? unknownValue;
+        value.hitsRank = data.hits.rank ?? unknownValue;
+        value.bandwidthTotal = data.bandwidth.total ?? unknownValue;
+        value.bandwidthRank = data.bandwidth.rank ?? unknownValue;
+      }
+    })
+    .finally(() => (isLoading.value = false));
 };
 
 watch(
